@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Rookie</string>
+    <string name="account_gotoSignUp">Don\'t have an account? <font color='#4299FF'><u>Sign Up</u></font></string>
+    <string name="account_gotoLogin">Have an account? <font color='#4299FF'><u>Login</u></font></string>
+</resources>
