@@ -36,7 +36,7 @@
                 android:layout_height="53dp"
                 android:autofillHints="username"
                 android:backgroundTint="@color/theme_grey"
-                android:hint="Enter Username"
+                android:hint="Enter Email"
                 android:inputType="textNoSuggestions"
                 android:textColor="@color/white"
                 android:textColorHint="@color/theme_grey"

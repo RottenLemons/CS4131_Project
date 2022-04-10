@@ -8,19 +8,20 @@
     android:background="#212121">
 
     <Button
-        android:id="@+id/fightEngineBtn"
+        android:id="@+id/socialBtn"
         android:layout_width="wrap_content"
         android:layout_height="58dp"
         android:fontFamily="@font/ubuntu"
-        android:text="Fight Engine"
+        android:text="Community Posts"
         android:textColor="#FFFFFF"
         android:textSize="24sp"
-        app:icon="@drawable/ic_baseline_android_24"
+        app:icon="@drawable/ic_baseline_ios_share_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.743" />
+        app:layout_constraintVertical_bias="0.574" />
 
     <Button
         android:id="@+id/scanPositionBtn"
@@ -33,25 +34,10 @@
         app:icon="@drawable/ic_baseline_photo_camera_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.485"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.148" />
-
-    <Button
-        android:id="@+id/scanScoreSheetBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="58dp"
-        android:fontFamily="@font/ubuntu"
-        android:text="Scan Score Sheet"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
-        app:icon="@drawable/ic_baseline_photo_camera_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.352" />
+        app:layout_constraintVertical_bias="0.374" />
 
     <Button
         android:id="@+id/generatePuzzleBtn"
@@ -64,9 +50,26 @@
         app:icon="@drawable/ic_baseline_dashboard_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.481"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.543" />
+        app:layout_constraintVertical_bias="0.774" />
+
+    <Button
+        android:id="@+id/scanScoreSheetBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="58dp"
+        android:fontFamily="@font/ubuntu"
+        android:text="Scan Score Sheet"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        app:icon="@drawable/ic_baseline_photo_camera_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.483"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.174" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -84,5 +87,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
         tools:ignore="SpeakableTextPresentCheck"/>
+
+    <ImageView
+        android:id="@+id/help"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="360dp"
+        android:src="@drawable/ic_baseline_help_outline_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.05" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

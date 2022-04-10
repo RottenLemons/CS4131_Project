@@ -1,35 +1,39 @@
 package com.example.project
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Intent
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
-import com.google.android.material.card.MaterialCardView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import no.bakkenbaeck.chessboardeditor.view.board.ChessBoardView
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.text.SimpleDateFormat
-import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 
 class LinksActivity : AppCompatActivity() {
@@ -37,32 +41,60 @@ class LinksActivity : AppCompatActivity() {
     lateinit var image: InputImage
     lateinit var textInImage : TextView
     lateinit var copyToClipboard : ImageView
-    lateinit var lichessBtn : Button
-    lateinit var chessBtn : Button
-    lateinit var close : ImageView
     lateinit var classifier: Classifier
-    lateinit var textInImageLayout : MaterialCardView
+    lateinit var scrollView : ScrollView
     private val labelPath = "full_labels.txt"
     private val modelPath = "mobilenetv2.tflite"
     private lateinit var pyobjectSaver: PyObject
     private val TOTAL_SQUARES = 64
     lateinit var imageStream: InputStream
     var selectedImage: Bitmap? = null
-
+    private lateinit var database: DatabaseReference
+    private var user : FirebaseUser? = null
+    private lateinit var chessBoardView: ChessBoardView
+    private lateinit var lichessBtn : Button
+    private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
+    lateinit var sh : SharedPreferences
+    lateinit var notificationManager : NotificationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_links)
 
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
+                as NotificationManager
+        createNotificationChannel("com.example.notifydemo.news",
+            "Notification Demo News","Example News Channel")
+        sh = getSharedPreferences("MySharedPref", MODE_PRIVATE)
+        database = Firebase.database("https://rookie-3bcea-default-rtdb.asia-southeast1.firebasedatabase.app/").reference
         var intent = intent
         textInImage = findViewById(R.id.textInImage)
         copyToClipboard = findViewById(R.id.copyToClipboard)
-        close = findViewById(R.id.close)
-        textInImageLayout = findViewById(R.id.textInImageLayout)
+        scrollView = findViewById(R.id.scrollView)
+        user = FirebaseAuth.getInstance().currentUser
+        chessBoardView = findViewById(R.id.chessBoardView)
         lichessBtn = findViewById(R.id.lichessBtn)
-        chessBtn = findViewById(R.id.chessBtn)
 
-        if (intent.getStringExtra("purpose") == "Position") {
+        lichessBtn.setOnClickListener {
+            val fen = chessBoardView.getFen()
+            if (user != null) {
+                val uid = user!!.uid
+                var list : ArrayList<String> = ArrayList<String>(10)
+                database.child("$uid").get().addOnCompleteListener {
+                    for (i in it.result.children) {
+                        list.add(i.value.toString())
+                    }
+                    list.add("/" + fen)
+                    database.child("$uid").setValue(list)
+                }
+            }
+
+            val lichess = Intent(Intent.ACTION_VIEW, Uri.parse("https://lichess.org/analysis/${fen}"))
+            startActivity(lichess)
+        }
+
+        if (sh.getString("purpose", "Position") == "Position") {
+
             if(!Python.isStarted()){
                 Python.start(AndroidPlatform((this)));
             }
@@ -90,11 +122,10 @@ class LinksActivity : AppCompatActivity() {
 
 
             val matrixThread = MatrixThread(bmp32)
-            matrixThread.start()
-            val predictionThread = PredictionThread()
-            predictionThread.start()
+            scheduler.schedule(matrixThread, 3, TimeUnit.SECONDS)
 
         } else {
+            findViewById<RelativeLayout>(R.id.loadingPanel).visibility = View.GONE
             if (intent.getStringExtra("type") == "camera") {
                 image = InputImage.fromBitmap(intent.getParcelableExtra("image")!!, 0)
                 runTextRecognition()
@@ -119,12 +150,6 @@ class LinksActivity : AppCompatActivity() {
                 Toast.makeText(this, "Couldn't Find any text in here…", Toast.LENGTH_SHORT).show()
             }
         }
-
-        close.setOnClickListener {
-            textInImageLayout.visibility = View.GONE
-            lichessBtn.visibility = View.VISIBLE
-            chessBtn.visibility = View.VISIBLE
-        }
     }
 
     private fun isTextValid(text: String?): Boolean {
@@ -147,7 +172,7 @@ class LinksActivity : AppCompatActivity() {
         recognizer
             .process(image)
             .addOnSuccessListener { text ->
-                textInImageLayout.visibility = View.VISIBLE
+                scrollView.visibility = View.VISIBLE
                 processTextRecognitionResult(text)
             }.addOnFailureListener { e ->
                 e.printStackTrace()
@@ -186,9 +211,11 @@ class LinksActivity : AppCompatActivity() {
                     val bitmap = Utilities.pyimageToBitmap(obj.asList()[1].toString())
                     if (bitmap != null) {
                         pyobjectSaver = obj
+                        val predictionThread = PredictionThread()
+                        predictionThread.start()
                     } else {
                         Toast.makeText(
-                            this@LinksActivity,
+                            getApplicationContext(),
                             "Nothing found..",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -211,9 +238,8 @@ class LinksActivity : AppCompatActivity() {
                 try {
                     val results: List<String> = cropSquares()
                     val boardString: String = getBoardString(results)
-                    val fen = splitAndReverseString(boardString)
-                    val lichess = Intent(Intent.ACTION_VIEW, Uri.parse("https://lichess.org/analysis${fen}"))
-                    startActivity(lichess)
+                    val fen = string(boardString)
+                    chessBoardView.setFen(fen)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
@@ -242,26 +268,13 @@ class LinksActivity : AppCompatActivity() {
 
                 results.add(final_result.first)
             }
+        } else {
+            Toast.makeText(this, "Image does not seem complete", Toast.LENGTH_SHORT).show()
         }
         return results
     }
 
-    @Throws(IOException::class)
-    private fun createImageFile(): File? {
-        // Create an image file name
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val imageFileName = "JPEG_" + timeStamp + "_"
-        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val image = File.createTempFile(
-            imageFileName,  /* prefix */
-            ".jpg",  /* suffix */
-            storageDir /* directory */
-        )
-        val mCurrentPhotoPath = image.absolutePath
-        return image
-    }
-
-    private fun splitAndReverseString(stringBoard: String): String {
+    private fun string(stringBoard: String): String {
         val len = stringBoard.length
         var fen : String = ""
         val n = 8
@@ -278,10 +291,32 @@ class LinksActivity : AppCompatActivity() {
                 i = i + chars
             }
         }
-        Collections.reverse(Arrays.asList(*equalStr))
+        equalStr.reverse()
         for (i in equalStr) {
             fen += "/" + i
         }
+        findViewById<RelativeLayout>(R.id.loadingPanel).visibility = View.GONE
+        findViewById<ConstraintLayout>(R.id.boardView).visibility = View.VISIBLE
+        val notificationID = 101
+        val channelID = "com.example.notifydemo.news"
+        val notification = Notification.Builder(this, channelID)
+            .setContentTitle("Completion Achieved")
+            .setContentText("Position Scan is Completed!!")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setChannelId(channelID).build()
+        notificationManager.notify(notificationID, notification)
         return fen
+    }
+
+    private fun createNotificationChannel(id: String, name: String, description: String) {
+        val importance = NotificationManager.IMPORTANCE_LOW
+        // val importance = NotificationManager.IMPORTANCE_HIGH
+        val channel = NotificationChannel(id, name, importance)
+        channel.description = description
+        channel.enableLights(true)
+        channel.lightColor = Color.BLUE
+        channel.enableVibration(true)
+        channel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+        notificationManager.createNotificationChannel(channel)
     }
 }

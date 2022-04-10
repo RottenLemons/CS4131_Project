@@ -16,7 +16,7 @@ class SecondFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<Button>(R.id.doneBtn).setOnClickListener { Button ->
+        view.findViewById<Button>(R.id.doneBtn).setOnClickListener {  Button ->
             var intent : Intent = Intent(context, MainActivity::class.java)
             startActivity(intent)
         }

@@ -2,61 +2,93 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.project">
-    <uses-permission android:name="android.permission.CAMERA" tools:remove="android:maxSdkVersion"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:remove="android:maxSdkVersion"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        tools:remove="android:maxSdkVersion" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:remove="android:maxSdkVersion" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:screenOrientation="sensorPortrait"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:screenOrientation="sensorPortrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.Project">
+
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />
 
         <activity
             android:name=".OnboardActivity"
+            android:configChanges="orientation"
             android:exported="true"
-            android:theme="@style/Theme.Project.NoActionBar">
-        </activity>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Project.NoActionBar" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:configChanges="orientation"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".HelpActivity"
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SplashScreenActivity"
+            android:configChanges="orientation"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Project.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LoginActivity"
+            android:configChanges="orientation"
             android:exported="true"
-            android:parentActivityName=".MainActivity">
-        </activity>
-
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SignUpActivity"
+            android:configChanges="orientation"
             android:exported="true"
-            android:parentActivityName=".MainActivity">
-        </activity>
-
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".PictureGalleryActivity"
+            android:configChanges="orientation"
             android:exported="true"
-            android:parentActivityName=".MainActivity">
-        </activity>
-
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".LinksActivity"
+            android:configChanges="orientation"
             android:exported="true"
-            android:parentActivityName=".PictureGalleryActivity">
-        </activity>
+            android:parentActivityName=".PictureGalleryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UserActivity"
+            android:configChanges="orientation"
+            android:exported="true"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SocialActivity"
+            android:configChanges="orientation"
+            android:exported="true"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="preloaded_fonts"

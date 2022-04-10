@@ -1,18 +1,18 @@
 package com.example.project
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+
 
 class PictureGalleryActivity : AppCompatActivity() {
     private val REQUEST_ID_MULTIPLE_PERMISSIONS = 101
@@ -21,15 +21,34 @@ class PictureGalleryActivity : AppCompatActivity() {
     private lateinit var picBtn: Button
     private lateinit var galleryBtn: Button
     private var purpose : String? = null
+    private var user : FirebaseUser? = null
+    lateinit var sh : SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_picturegallery)
 
+        sh = getSharedPreferences("MySharedPref", MODE_PRIVATE)
         purpose = intent.getStringExtra("purpose")
+        user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            findViewById<FloatingActionButton>(R.id.fab2).setImageDrawable(resources.getDrawable(R.drawable.ic_baseline_dashboard_24))
+        }
 
         picBtn = findViewById(R.id.picBtn)
         galleryBtn = findViewById(R.id.galleryBtn)
+
+        findViewById<FloatingActionButton>(R.id.fab2).setOnClickListener {
+            if (user == null) {
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+            } else {
+                val intent = Intent(this, UserActivity::class.java)
+                intent.putExtra("User", user)
+                startActivity(intent)
+            }
+        }
+
 
         picBtn.setOnClickListener {
             try {
@@ -84,7 +103,6 @@ class PictureGalleryActivity : AppCompatActivity() {
                 val selectedImage = data.data
                 val intent = Intent(this, LinksActivity::class.java)
                 intent.putExtra("image", selectedImage.toString())
-                intent.putExtra("type", "gallery")
                 intent.putExtra("purpose", purpose)
                 startActivity(intent)
             }
